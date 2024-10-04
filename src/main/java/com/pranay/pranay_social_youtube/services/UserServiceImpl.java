@@ -1,6 +1,7 @@
 package com.pranay.pranay_social_youtube.services;
 
 import com.pranay.pranay_social_youtube.config.JwtProvider;
+import com.pranay.pranay_social_youtube.exceptions.UserException;
 import com.pranay.pranay_social_youtube.model.User;
 import com.pranay.pranay_social_youtube.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService{
 
     @Autowired
-    UserRepository userRepository;
+   private UserRepository userRepository;
 
     @Override
     public User registerUser(User user) {
@@ -30,12 +31,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<User> findUserById(Integer userId) throws Exception {
+    public Optional<User> findUserById(Integer userId) throws UserException {
         Optional<User> user= userRepository.findById(userId);
         if(user.isPresent()){
             return Optional.of(user.get());
         }
-        throw new Exception("user not exist with userid"+userId);
+        throw new UserException("user not exist with userid"+userId);
 
 
     }
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User followUser(Integer reqUserId, Integer userId2) throws Exception {
+    public User followUser(Integer reqUserId, Integer userId2) throws UserException {
         User reqUser= findUserById(reqUserId).get();
         User user2=findUserById(userId2).get();
         user2.getFollowers().add(reqUser.getId());
@@ -58,10 +59,10 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User updateUser(User user,Integer userId) throws Exception {
+    public User updateUser(User user,Integer userId) throws UserException {
         Optional<User> user1=userRepository.findById(userId);
         if(user1.isEmpty()){
-            throw new Exception("user is not found with the give id"+userId);
+            throw new UserException("user is not found with the give id"+userId);
         }
         User oldUser=user1.get();
 

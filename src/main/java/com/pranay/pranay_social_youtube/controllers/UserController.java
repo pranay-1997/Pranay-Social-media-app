@@ -1,5 +1,6 @@
 package com.pranay.pranay_social_youtube.controllers;
 
+import com.pranay.pranay_social_youtube.exceptions.UserException;
 import com.pranay.pranay_social_youtube.model.User;
 import com.pranay.pranay_social_youtube.repository.UserRepository;
 import com.pranay.pranay_social_youtube.services.UserService;
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/api/users/{userId}")
-    public Optional<User> getUserById(@PathVariable("userId") Integer id) throws Exception {
+    public Optional<User> getUserById(@PathVariable("userId") Integer id) throws UserException {
         return userService.findUserById(id);
 
     }
@@ -33,7 +34,7 @@ public class UserController {
 
     @PutMapping("/api/users")
     public User UpdateUser( @RequestHeader("Authorization") String jwt,@RequestBody User user)
-            throws Exception {
+            throws UserException {
         User reqUser=userService.finduserByJwt(jwt);
         return userService.updateUser(user, reqUser.getId());
 
@@ -41,7 +42,7 @@ public class UserController {
 
     @PutMapping("/api/users/follow/{userId1}/{userId2}")
     public User followUserHandler(@RequestHeader("Authorization") String jwt,@PathVariable Integer userId2)
-            throws Exception {
+            throws UserException{
         User reqUser=userService.finduserByJwt(jwt);
         User user=userService.followUser(reqUser.getId(),userId2);
         return user;
