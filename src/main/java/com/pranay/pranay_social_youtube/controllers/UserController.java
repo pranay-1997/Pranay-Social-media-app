@@ -17,41 +17,47 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping("/api/users")
     public List<User> getUsers() {
 
         return userRepository.findAll();
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/api/users/{userId}")
     public Optional<User> getUserById(@PathVariable("userId") Integer id) throws Exception {
         return userService.findUserById(id);
 
     }
 
-    @PostMapping("/users")
-    public User createUser(@RequestBody User user) {
-        return userService.registerUser(user);
+
+
+    @PutMapping("/api/users")
+    public User UpdateUser( @RequestHeader("Authorization") String jwt,@RequestBody User user)
+            throws Exception {
+        User reqUser=userService.finduserByJwt(jwt);
+        return userService.updateUser(user, reqUser.getId());
+
     }
 
-    @PutMapping("/users/{userid}")
-    public User UpdateUser(@PathVariable Integer userid, @RequestBody User user)
+    @PutMapping("/api/users/follow/{userId1}/{userId2}")
+    public User followUserHandler(@RequestHeader("Authorization") String jwt,@PathVariable Integer userId2)
             throws Exception {
-        return userService.updateUser(user, userid);
-
-    }
-
-    @PutMapping("/users/follow/{userId1}/{userId2}")
-    public User followUserHandler(@PathVariable Integer userId1,@PathVariable Integer userId2)
-            throws Exception {
-        User user=userService.followUser(userId1,userId2);
+        User reqUser=userService.finduserByJwt(jwt);
+        User user=userService.followUser(reqUser.getId(),userId2);
         return user;
     }
 
-    @GetMapping("/users/search")
+    @GetMapping("/api/users/search")
     public List<User> searchUser(@RequestParam("query") String query){
         List<User> users=userService.searchUser(query);
         return users;
+    }
+    @GetMapping("/api/users/profile")
+    public User getUserFromtoken(@RequestHeader("Authorization") String jwt){
+        User user=userService.finduserByJwt(jwt);
+        System.out.println("jwt-------"+jwt);
+        user.setPassword(null);
+        return user;
     }
 
 }

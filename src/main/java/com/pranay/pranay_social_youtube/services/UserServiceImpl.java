@@ -1,5 +1,6 @@
 package com.pranay.pranay_social_youtube.services;
 
+import com.pranay.pranay_social_youtube.config.JwtProvider;
 import com.pranay.pranay_social_youtube.model.User;
 import com.pranay.pranay_social_youtube.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,14 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User followUser(Integer userId1, Integer userId2) throws Exception {
-        User user1= findUserById(userId1).get();
+    public User followUser(Integer reqUserId, Integer userId2) throws Exception {
+        User reqUser= findUserById(reqUserId).get();
         User user2=findUserById(userId2).get();
-        user2.getFollowers().add(user1.getId());
-        user1.getFollowings().add(user2.getId());
-        userRepository.save(user1);
+        user2.getFollowers().add(reqUser.getId());
+        reqUser.getFollowings().add(user2.getId());
+        userRepository.save(reqUser);
         userRepository.save(user2);
-        return user1;
+        return reqUser;
     }
 
     @Override
@@ -80,6 +81,9 @@ public class UserServiceImpl implements UserService{
         if(user.getId()!=null){
             oldUser.setId(user.getId());
         }
+        if(user.getGender()!=null){
+            oldUser.setGender(user.getGender());
+        }
         User updatedUser= userRepository.save(oldUser);
         return updatedUser;
 
@@ -90,5 +94,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> searchUser(String query) {
         return userRepository.searchUser(query);
+    }
+
+    @Override
+    public User finduserByJwt(String jwt) {
+        String email= JwtProvider.getEmailFromJwtToken(jwt);
+        User user=userRepository.findByEmail(email);
+        return user;
     }
 }
